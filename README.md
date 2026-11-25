@@ -12,7 +12,7 @@ Wednesday 25 November 2026 in one image. Lead stories: China investigates Politb
 mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 ```
 
-This writes `out/entry.png` (a 1024×1024 JPEG, 224,759 bytes, sha256 `275c873582f55b0cb9181b2c7bbbdddb4759108cfbf67be1253b09359311df28`). The program only copies the bundled `entry.jpg` byte-for-byte, validates its JPEG magic bytes and the 1 MiB size cap first, and uses no network — two runs produce identical bytes. Verify with `sha256sum out/entry.png`.
+This writes `out/entry.png` (a 1024×1024 JPEG, 222,706 bytes, sha256 `b08b2b6f04505120536ad648dc702e9fc784d529c0940b1d7c2885b0c032a4ff`). The program only copies the bundled `entry.jpg` byte-for-byte, validates its JPEG magic bytes, 1 MiB size cap and SHA-256 first, and uses no network — two runs produce identical bytes. Verify with `sha256sum out/entry.png`.
 
 The image itself is drawn by `draw_image.py` (Pillow + DejaVu fonts, deterministic: two runs give the same bytes), so the picture can be regenerated from source with `python3 draw_image.py`.
 

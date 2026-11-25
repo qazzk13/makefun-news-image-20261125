@@ -12,8 +12,9 @@
 // JPEG, as the bounty rules allow). It uses only the Node standard
 // library and makes no network calls, so repeated runs produce
 // identical output. Before writing, it checks the bundled file's JPEG
-// magic bytes and the 1 MiB size cap, so a corrupted bundle fails
-// loudly instead of shipping a bad entry.
+// magic bytes, the 1 MiB size cap and its expected SHA-256, so a
+// corrupted bundle fails loudly instead of shipping a bad entry; after
+// writing, it reads the output back and compares bytes.
 //
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for
 // /output:  mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
@@ -21,9 +22,12 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const MAX_BYTES = 1_048_576;
 const JPEG_MAGIC = [0xff, 0xd8, 0xff];
+const EXPECTED_SHA256 =
+  'b08b2b6f04505120536ad648dc702e9fc784d529c0940b1d7c2885b0c032a4ff';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const data = readFileSync(join(here, 'entry.jpg'));
@@ -34,9 +38,16 @@ if (data.length < 3 || JPEG_MAGIC.some((b, i) => data[i] !== b)) {
 if (data.length > MAX_BYTES) {
   throw new Error(`entry.jpg is ${data.length} bytes, over the 1 MiB cap`);
 }
+const digest = createHash('sha256').update(data).digest('hex');
+if (digest !== EXPECTED_SHA256) {
+  throw new Error(`entry.jpg sha256 mismatch: ${digest}`);
+}
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 mkdirSync(outDir, { recursive: true });
 const dest = join(outDir, 'entry.png');
 writeFileSync(dest, data);
-console.log(`wrote ${dest} (${data.length} bytes)`);
+if (!readFileSync(dest).equals(data)) {
+  throw new Error('output differs from the bundled image');
+}
+console.log(`wrote ${dest} (${data.length} bytes, sha256 ${digest})`);

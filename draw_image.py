@@ -151,7 +151,10 @@ def draw_court_phone(d, x0, y0, x1, y1):
                width=3)
         d.pieslice([px - 52, y0 + 84, px + 52, y0 + 128], 0, 180,
                    fill=GOLD, outline=(120, 96, 30), width=2)
-    d.text((cx, y0 + 148), "GUILTY", font=font(FONT_BOLD, 34),
+    # A red verdict stamp in the top-left corner, clear of the phone.
+    d.rounded_rectangle([x0 + 14, y0 + 12, x0 + 148, y0 + 52], radius=6,
+                        outline=RED, width=3)
+    d.text((x0 + 81, y0 + 32), "GUILTY", font=font(FONT_BOLD, 25),
            fill=RED, anchor="mm")
 
 
@@ -172,13 +175,15 @@ def draw_storefront(d, x0, y0, x1, y1):
                 outline=(90, 84, 76), width=3)
     d.ellipse([cx + 14, (y0 + y1) // 2 + 16, cx + 24, (y0 + y1) // 2 + 26],
               fill=GOLD)
-    # Police tape across the front, two crossing bands.
+    # Police tape across the front, two crossing bands; the word
+    # follows each band's slope so it sits inside the yellow.
     for yy, flip in ((y1 - 92, 1), (y1 - 52, -1)):
         d.polygon([(x0, yy), (x1, yy + 26 * flip), (x1, yy + 26 * flip + 24),
                    (x0, yy + 24)], fill=(255, 205, 0))
-        for tx in range(x0 + 30, x1 - 60, 118):
-            d.text((tx, yy + 12 + (tx % 3)), "POLICIA",
-                   font=font(FONT_BOLD, 17), fill=(30, 30, 30))
+        for tx in range(x0 + 30, x1 - 90, 118):
+            ty = yy + 12 + flip * 26 * (tx - x0) // (x1 - x0)
+            d.text((tx, ty), "POLICIA", font=font(FONT_BOLD, 17),
+                   fill=(30, 30, 30), anchor="lm")
 
 
 PANELS = [
@@ -186,9 +191,9 @@ PANELS = [
         "tag": "CHINA  ·  POLITICS",
         "color": RED,
         "title": "SHANGHAI CHIEF PROBED",
-        "body": ("China investigates Politburo member and Shanghai "
-                 "party chief Chen Jining, in the biggest party "
-                 "shakeup in decades."),
+        "body": ("China investigates Shanghai party chief "
+                 "Chen Jining, a Politburo member, in the biggest "
+                 "party shakeup in decades."),
         "scene": draw_skyline,
     },
     {
@@ -251,8 +256,8 @@ def main():
     # Masthead.
     d.rectangle([0, 0, W, 128], fill=NAVY)
     d.rectangle([0, 128, W, 134], fill=GOLD)
-    d.text((24, 34), "WEDNESDAY 25 NOVEMBER 2026",
-           font=font(FONT_BOLD, 44), fill=WHITE)
+    d.text((24, 38), "WEDNESDAY 25 NOVEMBER 2026",
+           font=font(FONT_BOLD, 38), fill=WHITE)
     d.text((24, 92), "WORLD NEWS IN ONE IMAGE",
            font=font(FONT_BOLD, 26), fill=(255, 214, 90))
     d.text((W - 24, 34), "make.fun", font=font(FONT_BOLD, 30),
